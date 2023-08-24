@@ -8,7 +8,7 @@ export interface Config {
 }
 
 export const Config: Schema<Config> = Schema.object({
-  apikey: Schema.string().required(),
+  apikey: Schema.string().required().description('OpenAI API Key (GPT-3.5-Turbo)'),
 })
 
 async function askGPT(openai: OpenAI, info: string) {
@@ -23,6 +23,7 @@ async function askGPT(openai: OpenAI, info: string) {
 export function apply(ctx: Context, config: Config) {
   const openai = new OpenAI({ apiKey: config.apikey })
   let root = ctx.$commander
+  ctx.i18n.define('zh-CN', require('./zh'))
   ctx.command("ask <info>")
     .action(async ({ session }, info) => {
       const ask = `我将在一个聊天程序的机器人提供的指令中选择一个指令来满足我的需求，这是这个机器人所提供的所有指令列表：
@@ -33,6 +34,7 @@ export function apply(ctx: Context, config: Config) {
                   ${info}`
       const answer = await askGPT(openai, ask)
       const cmd = answer[0].message.content.split(':')[1];
-      return cmd
+      session.send(answer[0].message.content)
+      session.execute(cmd)
   })
 }

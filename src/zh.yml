@@ -1,0 +1,5 @@
+commands:
+  ask:
+    description: '让GPT-3.5帮你操作机器人'
+    examples: |
+      ask 我想查看帮助信息

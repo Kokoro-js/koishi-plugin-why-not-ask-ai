@@ -1,7 +1,7 @@
 {
   "name": "koishi-plugin-why-not-ask-gpt",
   "description": "为什么不问问神奇的GPT呢",
-  "version": "0.0.2",
+  "version": "0.1.0",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "files": [

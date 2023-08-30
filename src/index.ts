@@ -31,10 +31,10 @@ export const Config: Schema<Config> = Schema.object({
 export function apply(ctx: Context, config: Config) {
   ctx.i18n.define("zh-CN", require("./zh"));
   let cmds = "";
+  for (const [key, value] of Object.entries(config.commands)) {
+    cmds += `${key} - ${value}\n`;
+  }
   async function getResponse(info: string) {
-    for (const [key, value] of Object.entries(config.commands)) {
-      cmds += `${key} - ${value}\n`;
-    }
     const response = await ctx.http.axios({
       method: "post",
       url: trimSlash(`${config.proxy}/v1/chat/completions`),
@@ -57,7 +57,7 @@ export function apply(ctx: Context, config: Config) {
   if (config.at) {
     ctx.on("message", async (session) => {
       if (!session.parsed.appel) return;
-      let cmd: string = getResponse(session.content);
+      let cmd: string = await getResponse(session.content);
       
       if (cmd == config.symbol) return cmd;
       
@@ -65,7 +65,7 @@ export function apply(ctx: Context, config: Config) {
     });
   };
   ctx.command("ask <info:text>").action(async ({ session }, info) => {
-    let cmd: string = getResponse(info);
+    let cmd: string = await getResponse(info);
     if (cmd == config.symbol) {
       return cmd;
     }

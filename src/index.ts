@@ -25,36 +25,16 @@ export const Config: Schema<Config> = Schema.object({
     .default("未找到")
     .description("找不到指令时约定提示词。"),
   commands: Schema.dict(String).role("table"),
-  at: Schema.boolean().default("false").description("是否在 at 时响应")
+  at: Schema.boolean().default(false).description("是否在bot被 @ 时响应")
 });
 
 export function apply(ctx: Context, config: Config) {
   ctx.i18n.define("zh-CN", require("./zh"));
-
   let cmds = "";
-  for (const [key, value] of Object.entries(config.commands)) {
-    cmds += `${key} - ${value}\n`;
-  }
-
-  if (config.at) {
-    ctx.on("message", async (session) => {
-      if (!session.parsed.appeal) return;
-      const cmd: string = getResponse();
-      
-      if (cmd == config.symbol) return cmd;
-      
-      session.execute(response.data["choices"][0]["message"]["content"]);
+  async function getResponse(info: string) {
+    for (const [key, value] of Object.entries(config.commands)) {
+      cmds += `${key} - ${value}\n`;
     }
-  }
-  ctx.command("ask <info:text>").action(async ({ session }, info) => {
-    const cmd: string = getResponse();
-    if (cmd == config.symbol) {
-      return cmd;
-    }
-    session.execute(response.data["choices"][0]["message"]["content"]);
-  });
-
-  function getResponse() {
     const response = await ctx.http.axios({
       method: "post",
       url: trimSlash(`${config.proxy}/v1/chat/completions`),
@@ -73,4 +53,22 @@ export function apply(ctx: Context, config: Config) {
     });
     return response.data["choices"][0]["message"]["content"]
   }
+
+  if (config.at) {
+    ctx.on("message", async (session) => {
+      if (!session.parsed.appel) return;
+      let cmd: string = getResponse(session.content);
+      
+      if (cmd == config.symbol) return cmd;
+      
+      session.execute(cmd);
+    });
+  };
+  ctx.command("ask <info:text>").action(async ({ session }, info) => {
+    let cmd: string = getResponse(info);
+    if (cmd == config.symbol) {
+      return cmd;
+    }
+    session.execute(cmd);
+  });
 }

@@ -8,6 +8,7 @@ export interface Config {
   area: string;
   symbol: string;
   commands: Dict<string>;
+  at: boolean;
 }
 
 export const Config: Schema<Config> = Schema.object({
@@ -24,6 +25,7 @@ export const Config: Schema<Config> = Schema.object({
     .default("未找到")
     .description("找不到指令时约定提示词。"),
   commands: Schema.dict(String).role("table"),
+  at: Schema.boolean().default("false").description("是否在 at 时响应")
 });
 
 export function apply(ctx: Context, config: Config) {
@@ -34,7 +36,25 @@ export function apply(ctx: Context, config: Config) {
     cmds += `${key} - ${value}\n`;
   }
 
+  if (config.at) {
+    ctx.on("message", async (session) => {
+      if (!session.parsed.appeal) return;
+      const cmd: string = getResponse();
+      
+      if (cmd == config.symbol) return cmd;
+      
+      session.execute(response.data["choices"][0]["message"]["content"]);
+    }
+  }
   ctx.command("ask <info:text>").action(async ({ session }, info) => {
+    const cmd: string = getResponse();
+    if (cmd == config.symbol) {
+      return cmd;
+    }
+    session.execute(response.data["choices"][0]["message"]["content"]);
+  });
+
+  function getResponse() {
     const response = await ctx.http.axios({
       method: "post",
       url: trimSlash(`${config.proxy}/v1/chat/completions`),
@@ -49,12 +69,8 @@ export function apply(ctx: Context, config: Config) {
           { role: "user", content: info },
         ],
       },
-      timeout: 600000,
+      timeout: 600000
     });
-    const cmd: string = response.data["choices"][0]["message"]["content"];
-    if (cmd == config.symbol) {
-      return cmd;
-    }
-    session.execute(response.data["choices"][0]["message"]["content"]);
-  });
+    return response.data["choices"][0]["message"]["content"]
+  }
 }

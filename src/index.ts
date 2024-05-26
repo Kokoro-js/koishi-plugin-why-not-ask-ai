@@ -32,7 +32,7 @@ export const Config: Schema<Config> = Schema.object({
   symbol: Schema.string()
     .default("未找到")
     .description("找不到指令时约定提示词。"),
-  commands: Schema.dict(String).role("table"),
+  commands: Schema.dict(String).role("table").description("指令与其对应功能"),
   at: Schema.boolean().default(false).description("是否在bot被 @ 时响应")
 });
 

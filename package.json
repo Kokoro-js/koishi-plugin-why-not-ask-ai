@@ -1,7 +1,7 @@
 {
   "name": "koishi-plugin-why-not-ask-ai",
   "description": "为什么不问问神奇的AI呢",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "files": [
@@ -15,6 +15,6 @@
     "plugin"
   ],
   "peerDependencies": {
-    "koishi": "^4.14.0"
+    "koishi": "^4.17.7"
   }
 }

@@ -1,7 +1,13 @@
-# koishi-plugin-why-not-ask-gpt
+# why-not-ask-ai
 
-[![npm](https://img.shields.io/npm/v/koishi-plugin-why-not-ask-gpt?style=flat-square)](https://www.npmjs.com/package/koishi-plugin-why-not-ask-gpt)
+[![npm](https://img.shields.io/npm/v/koishi-plugin-why-not-ask-ai?style=flat-square)](https://www.npmjs.com/package/koishi-plugin-why-not-ask-ai)
   
-功能简介：安装插件 - 配置好apikey后，在配置页面添加所有你想让gpt帮助用户执行指令的指令及其描述, 然后就可以使用 `.ask` 来让GPT帮你操作机器人辣！
+## 为什么不问问神奇的 AI 呢
 
-为什么不问问神奇的GPT呢
+### 简介
+
+使用 AI 来对你的机器人进行操控：使用自然语言来描述你的需求，然后 AI 为你自动执行，妈妈再也不用担心我记不住指令辣
+
+### 配置
+本插件支持所有提供 OpenAI API 格式的大模型接口，例如 [DeepSeek](https://deepseek.com), 或者 OpenAI 官方接口抑或是其他第三方 OpenAI 接口
+其他配置可参考插件自带配置进行修改

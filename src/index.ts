@@ -48,7 +48,7 @@ export function apply(ctx: Context, config: Config) {
       {
         model: config.model,
         messages: [
-          { role: "system", content: config.prompt + "\n" + cmds }, // 换新行来保证指令识别
+          { role: "system", content: config.prompt + "\n" + cmds }, 
           { role: "user", content: info },
         ],
         stream: false
@@ -68,6 +68,7 @@ export function apply(ctx: Context, config: Config) {
     ctx.middleware(async (session, next) => {
       if (session.stripped.atSelf) {
         let content = session.content.replace(/<at.*?\/>/g, "").trim();
+        if (!content || content === " " || content === "") return
         let cmd: string = await getResponse(content);
         if (cmd == config.symbol) {
           return cmd;

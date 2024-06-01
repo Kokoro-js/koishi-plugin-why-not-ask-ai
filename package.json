@@ -1,7 +1,7 @@
 {
   "name": "koishi-plugin-why-not-ask-ai",
   "description": "为什么不问问神奇的AI呢",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "files": [

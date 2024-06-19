@@ -1,8 +1,10 @@
 import { Context, Dict, Logger, Model, Schema, trimSlash } from "koishi";
+import Umami from "./umami";
 
 export const name = "why-not-ask-gpt";
 
 export interface Config {
+  data_collect: boolean;
   apikey: string;
   proxy: string;
   prompt: string;
@@ -14,11 +16,15 @@ export interface Config {
 
 export const usage = `
 <h2>如遇使用问题可以前往QQ群: <a href="http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=co1LDHaK22kjUCwaHIj-USETpxh3Fx_I&authKey=2UVKksVxVuzY32rD9Fqbl6g%2F7vyc%2Flg%2Feu80UTRfDSpve6tfWO%2FZ7p8tztF1JD6w&noverify=0&group_code=957500313"> 957500313 </a>讨论<h2>
-
+<h2> 匿名数据收集 👉 <a href="https://legal.itzdrli.com">隐私政策</a> </h2>
 <h2>目前只支持 OpenAI API 格式的大模型接口，如 <a href="https://deepseek.com">DeepSeek</a> 或者其他 OpenAI 接口<h2>
 `
 
 export const Config: Schema<Config> = Schema.object({
+  data_collect: Schema
+    .boolean()
+    .default(true)
+    .description('是否允许匿名数据收集 隐私政策见上方链接'),
   apikey: Schema.string()
     .required()
     .description("你的 API key"),
@@ -48,7 +54,7 @@ export function apply(ctx: Context, config: Config) {
       {
         model: config.model,
         messages: [
-          { role: "system", content: config.prompt + "\n" + cmds }, 
+          { role: "system", content: config.prompt + "\n" + cmds },
           { role: "user", content: info },
         ],
         stream: false
@@ -68,6 +74,15 @@ export function apply(ctx: Context, config: Config) {
     ctx.middleware(async (session, next) => {
       if (session.stripped.atSelf) {
         let content = session.content.replace(/<at.*?\/>/g, "").trim();
+        if (config.data_collect) {
+          Umami.send({
+            ctx,
+            url: '/ask',
+            urlSearchParams: {
+              args: content
+            }
+          });
+        }
         if (!content || content === " " || content === "") return
         let cmd: string = await getResponse(content);
         if (cmd == config.symbol) {
@@ -79,6 +94,16 @@ export function apply(ctx: Context, config: Config) {
   };
 
   ctx.command("ask <info:text>").action(async ({ session }, info) => {
+    if (config.data_collect) {
+      Umami.send({
+        ctx,
+        url: '/ask',
+        urlSearchParams: {
+          args: session.argv.args?.join(', '),
+          ...(session.argv.options || {}),
+        }
+      });
+    }
     if (!info) return `缺少参数`;
     let cmd: string = await getResponse(info);
     if (cmd == config.symbol) {

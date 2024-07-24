@@ -83,12 +83,13 @@ export function apply(ctx: Context, config: Config) {
             }
           });
         }
-        if (!content || content === " " || content === "") return
+        if (!content || content === " " || content === "") next();
         let cmd: string = await getResponse(content);
         if (cmd == config.symbol) {
           return cmd;
         }
         session.execute(cmd);
+        next()
       }
     })
   };
